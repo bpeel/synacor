@@ -18,17 +18,7 @@ struct Opcode {
     n_arguments: u16
 }
 
-enum InstructionError {
-    UnknownOpcode,
-    MissingArguments
-}
-
-enum DumpError {
-    Io(std::io::Error),
-    Instruction(InstructionError)
-}
-
-const opcodes: [Opcode; 22] = [
+const opcodes: [Opcode; 23] = [
     Opcode { name: "halt", n_arguments: 0 },
     Opcode { name: "set", n_arguments: 2 },
     Opcode { name: "push", n_arguments: 1 },
@@ -51,6 +41,7 @@ const opcodes: [Opcode; 22] = [
     Opcode { name: "out", n_arguments: 1 },
     Opcode { name: "in", n_arguments: 1 },
     Opcode { name: "noop", n_arguments: 0 },
+    Opcode { name: "?", n_arguments: 0 },
 ];
 
 fn fetch(f: &mut BufReader<File>) -> Result<Option<u16>, std::io::Error> {
@@ -67,19 +58,20 @@ fn fetch(f: &mut BufReader<File>) -> Result<Option<u16>, std::io::Error> {
 
 fn dump_instruction(addr: usize,
                     f: &mut BufReader<File>,
-                    opcode: u16) -> Result<usize, DumpError> {
-    if opcode as usize >= opcodes.len() {
-        return Err(DumpError::Instruction(InstructionError::UnknownOpcode))
-    }
-
-    let instruction = &opcodes[opcode as usize];
+                    opcode: u16) -> Result<usize, std::io::Error> {
+    let ops = &opcodes;
+    let mut instruction = if opcode as usize >= opcodes.len() {
+        &ops[opcodes.len() - 1]
+    } else {
+        &ops[opcode as usize]
+    };
     let mut args = Vec::<u16>::new();
 
     for i in 0..instruction.n_arguments {
-        match fetch(f).map_err(DumpError::Io)? {
+        match fetch(f)? {
             None => {
-                return Err(DumpError::Instruction
-                           (InstructionError::MissingArguments))
+                instruction = &ops[opcodes.len() - 1];
+                break
             },
             Some(n) => args.push(n)
         }
@@ -96,13 +88,13 @@ fn dump_instruction(addr: usize,
     Ok(args.len())
 }
 
-fn diss_program(filename: &str) -> Result<(), DumpError> {
-    let f = File::open(filename).map_err(DumpError::Io)?;
+fn diss_program(filename: &str) -> Result<(), std::io::Error> {
+    let f = File::open(filename)?;
     let mut reader = BufReader::new(f);
     let mut addr: usize = 0;
 
     loop {
-        match fetch(&mut reader).map_err(DumpError::Io)? {
+        match fetch(&mut reader)? {
             Some(opcode) => {
                 addr += 1;
                 addr += dump_instruction(addr, &mut reader, opcode)?;
@@ -117,12 +109,8 @@ fn diss_program(filename: &str) -> Result<(), DumpError> {
 fn main() {
     for arg in env::args().skip(1) {
         match diss_program(&arg) {
-            Err(DumpError::Io(e)) => {
+            Err(e) => {
                 println_stderr!("{}", e.description());
-                std::process::exit(1);
-            },
-            Err(DumpError::Instruction(e)) => {
-                println_stderr!("Invalid instruction");
                 std::process::exit(1);
             },
             Ok(_) => ()

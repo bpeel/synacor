@@ -6,4 +6,7 @@ authors = ["Neil Roberts <bpeeluk@yahoo.co.uk>"]
 [[bin]]
 name = "synacor"
 
+[[bin]]
+name = "diss"
+
 [dependencies]

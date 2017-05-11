@@ -232,25 +232,57 @@ impl Machine {
     }
 }
 
+fn read_memory(memory: &mut[u16],
+               length: usize,
+               f: &mut BufReader<File>) -> Result<bool, std::io::Error> {
+    let mut buf = [0 as u8; 2];
+    let mut pos: usize = 0;
+
+    while pos < length {
+        let n = f.read(&mut buf)?;
+
+        if n < 2 {
+            return Ok(false)
+        }
+
+        memory[pos] = (buf[0] as u16) | ((buf[1] as u16) << 8);
+        pos += 1;
+    }
+
+    Ok(true)
+}
+
 fn read_program(machine: &mut Machine,
                 filename: &str) -> Result<(), std::io::Error> {
     let f = File::open(filename)?;
     let mut reader = BufReader::new(f);
-    let mut buf = [0 as u8; 2];
-    let mut pos = 0;
 
-    while pos < MEMORY_SIZE {
+    if !read_memory(&mut machine.memory, MEMORY_SIZE, &mut reader)? {
+        return Ok(())
+    }
+
+    if !read_memory(&mut machine.registers, N_REGISTERS, &mut reader)? {
+        return Ok(())
+    }
+
+    let mut buf = [0 as u8; 2];
+    let n = reader.read(&mut buf)?;
+
+    if n < 2 {
+        return Ok(())
+    }
+
+    machine.pc = (buf[0] as u16) | ((buf[1] as u16) << 8);
+
+    loop {
         let n = reader.read(&mut buf)?;
 
         if n < 2 {
-            break
+            return Ok(())
         }
 
-        machine.memory[pos] = (buf[0] as u16) | ((buf[1] as u16) << 8);
-        pos += 1;
+        machine.stack.push((buf[0] as u16) | ((buf[1] as u16) << 8));
     }
-
-    Ok(())
 }
 
 fn main() {

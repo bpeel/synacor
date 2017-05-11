@@ -112,6 +112,16 @@ impl Machine {
     fn step(&mut self) -> Result<(), MachineError> {
         let opcode = self.fetch()?;
 
+        macro_rules! arithmetic_op {
+            ($b:ident, $c:ident, $op:expr) => {{
+                let register = self.fetch_register()?;
+                let $b = self.fetch_argument()?;
+                let $c = self.fetch_argument()?;
+                self.registers[register] = $op;
+                Ok(())
+            }}
+        }
+
         match opcode {
             0 => Err(MachineError::Halted),
             1 => {
@@ -134,20 +144,8 @@ impl Machine {
                     }
                 }
             },
-            4 => {
-                let register = self.fetch_register()?;
-                let b = self.fetch_argument()?;
-                let c = self.fetch_argument()?;
-                self.registers[register] = if b == c { 1 } else { 0 };
-                Ok(())
-            },
-            5 => {
-                let register = self.fetch_register()?;
-                let b = self.fetch_argument()?;
-                let c = self.fetch_argument()?;
-                self.registers[register] = if b > c { 1 } else { 0 };
-                Ok(())
-            },
+            4 => arithmetic_op!(b, c, if b == c { 1 } else { 0 }),
+            5 => arithmetic_op!(b, c, if b > c { 1 } else { 0 }),
             6 => {
                 self.pc = self.fetch_argument()?;
                 Ok(())
@@ -168,42 +166,11 @@ impl Machine {
                 }
                 Ok(())
             },
-            9 => {
-                let register = self.fetch_register()?;
-                let b = self.fetch_argument()?;
-                let c = self.fetch_argument()?;
-                self.registers[register] = (b + c) & 0x7fff;
-                Ok(())
-            },
-            10 => {
-                let register = self.fetch_register()?;
-                let b = self.fetch_argument()?;
-                let c = self.fetch_argument()?;
-                self.registers[register] =
-                    ((b as u32 * c as u32) & 0x7fff) as u16;
-                Ok(())
-            },
-            11 => {
-                let register = self.fetch_register()?;
-                let b = self.fetch_argument()?;
-                let c = self.fetch_argument()?;
-                self.registers[register] = b % c;
-                Ok(())
-            },
-            12 => {
-                let register = self.fetch_register()?;
-                let b = self.fetch_argument()?;
-                let c = self.fetch_argument()?;
-                self.registers[register] = b & c;
-                Ok(())
-            },
-            13 => {
-                let register = self.fetch_register()?;
-                let b = self.fetch_argument()?;
-                let c = self.fetch_argument()?;
-                self.registers[register] = b | c;
-                Ok(())
-            },
+            9 => arithmetic_op!(b, c, (b + c) & 0x7fff),
+            10 => arithmetic_op!(b, c, ((b as u32 * c as u32) & 0x7fff) as u16),
+            11 => arithmetic_op!(b, c, b % c),
+            12 => arithmetic_op!(b, c, b & c),
+            13 => arithmetic_op!(b, c, b | c),
             14 => {
                 let register = self.fetch_register()?;
                 let b = self.fetch_argument()?;

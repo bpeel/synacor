@@ -15,6 +15,7 @@ enum MachineError {
     InvalidRegister,
     UnexpectedOpcode,
     StackUnderflow,
+    InputError
 }
 
 impl MachineError {
@@ -24,7 +25,8 @@ impl MachineError {
             MachineError::InvalidAddress => "Invalid address",
             MachineError::InvalidRegister => "Invalid register",
             MachineError::UnexpectedOpcode => "Unexpected opcode",
-            MachineError::StackUnderflow => "Stack underflow"
+            MachineError::StackUnderflow => "Stack underflow",
+            MachineError::InputError => "Input error"
         }
     }
 }
@@ -214,12 +216,12 @@ impl Machine {
                 let register = self.fetch_register()?;
                 let mut buf = [0 as u8; 1];
                 match std::io::stdin().read(&mut buf) {
-                    Err(_) => (),
-                    Ok(n) => if n > 0 {
-                        self.registers[register] = buf[0] as u16
-                    }
-                };
-                Ok(())
+                    Ok(n) if n > 0 => {
+                        self.registers[register] = buf[0] as u16;
+                        Ok(())
+                    },
+                    _ => Err(MachineError::InputError)
+                }
             },
             21 => Ok(()), /* nop */
             _ => {

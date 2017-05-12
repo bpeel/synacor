@@ -9,4 +9,7 @@ name = "synacor"
 [[bin]]
 name = "diss"
 
+[[bin]]
+name = "dumpstrings"
+
 [dependencies]

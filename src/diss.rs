@@ -83,6 +83,13 @@ fn dump_instruction(addr: usize,
         print!(" {:04x}", arg);
     }
 
+    if opcode == 19 && args.len() > 0 {
+        match char::from_u32(args[0] as u32) {
+            Some(n) if n >= ' ' && n < '\u{80}' => print!(" // {}", n),
+            _ => ()
+        }
+    }
+
     println!("");
 
     Ok(args.len())

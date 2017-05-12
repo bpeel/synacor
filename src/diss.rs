@@ -18,7 +18,7 @@ struct Opcode {
     n_arguments: u16
 }
 
-const opcodes: [Opcode; 23] = [
+const OPCODES: [Opcode; 23] = [
     Opcode { name: "halt", n_arguments: 0 },
     Opcode { name: "set", n_arguments: 2 },
     Opcode { name: "push", n_arguments: 1 },
@@ -59,9 +59,9 @@ fn fetch(f: &mut BufReader<File>) -> Result<Option<u16>, std::io::Error> {
 fn dump_instruction(addr: usize,
                     f: &mut BufReader<File>,
                     opcode: u16) -> Result<usize, std::io::Error> {
-    let ops = &opcodes;
-    let mut instruction = if opcode as usize >= opcodes.len() {
-        &ops[opcodes.len() - 1]
+    let ops = &OPCODES;
+    let mut instruction = if opcode as usize >= OPCODES.len() {
+        &ops[OPCODES.len() - 1]
     } else {
         &ops[opcode as usize]
     };
@@ -70,7 +70,7 @@ fn dump_instruction(addr: usize,
     for i in 0..instruction.n_arguments {
         match fetch(f)? {
             None => {
-                instruction = &ops[opcodes.len() - 1];
+                instruction = &ops[OPCODES.len() - 1];
                 break
             },
             Some(n) => args.push(n)

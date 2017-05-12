@@ -67,7 +67,7 @@ fn dump_instruction(addr: usize,
     };
     let mut args = Vec::<u16>::new();
 
-    for i in 0..instruction.n_arguments {
+    for _ in 0..instruction.n_arguments {
         match fetch(f)? {
             None => {
                 instruction = &ops[OPCODES.len() - 1];

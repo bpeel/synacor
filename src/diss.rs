@@ -5,6 +5,7 @@ use std::fs::File;
 use std::env;
 use std::error::Error;
 use std::char;
+use std::str::FromStr;
 
 macro_rules! println_stderr(
     ($($arg:tt)*) => { {
@@ -95,10 +96,17 @@ fn dump_instruction(addr: usize,
     Ok(args.len())
 }
 
-fn diss_program(filename: &str) -> Result<(), std::io::Error> {
+fn diss_program(filename: &str, start_address: usize) -> Result<(), std::io::Error> {
     let f = File::open(filename)?;
     let mut reader = BufReader::new(f);
-    let mut addr: usize = 0;
+    let mut addr = start_address;
+
+    for _ in 0..start_address {
+        match fetch(&mut reader)? {
+            None => return Ok(()),
+            Some(_) => ()
+        }
+    }
 
     loop {
         match fetch(&mut reader)? {
@@ -112,14 +120,41 @@ fn diss_program(filename: &str) -> Result<(), std::io::Error> {
     Ok(())
 }
 
+fn usage(arg0: &str) -> ! {
+    println_stderr!("usage: {} <program> [start_address]", arg0);
+    std::process::exit(1);
+}
+
 fn main() {
-    for arg in env::args().skip(1) {
-        match diss_program(&arg) {
-            Err(e) => {
-                println_stderr!("{}", e.description());
-                std::process::exit(1);
-            },
-            Ok(_) => ()
-        }
+    let mut args = env::args();
+
+    let arg0 = args.next().unwrap();
+
+    let filename = match args.next() {
+        Some(n) => n,
+        None => usage(&arg0)
+    };
+
+    let start_address = match args.next() {
+        Some(n) => {
+            let res = if n.starts_with("0x") {
+                usize::from_str_radix(&n[2..], 16)
+            } else {
+                usize::from_str(&n)
+            };
+            match res {
+                Err(_) => usage(&arg0),
+                Ok(n) => n
+            }
+        },
+        None => 0
+    };
+
+    match diss_program(&filename, start_address) {
+        Err(e) => {
+            println_stderr!("{}", e.description());
+            std::process::exit(1);
+        },
+        Ok(_) => ()
     }
 }

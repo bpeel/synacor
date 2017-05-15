@@ -1,0 +1,85 @@
+0x6e7 : routine to read a string
+        8000 => maximum length
+        8001 => buffer
+
+        first word of buffer becomes the length
+
+
+        called from 0x0b0a
+
+0x5b2 : routine to call a function for each number in length-encoded data
+        8000 => the buffer to decode
+        8001 => a subroutine to call for each character
+
+05b2 push 8000
+05b4 push 8003
+05b6 push 8004
+05b8 push 8005
+05ba push 8006
+05bc set  8006 8000      ; 8006 = buffer
+05bf set  8005 8001      ; 8005 = subroutine
+05c2 rmem 8004 8000      ; 8004 = length of string
+05c5 set  8001 0000      ; 8001 = counter starting from 0
+: loop
+05c8 add  8003 0001 8001 ; get current length + 1
+05cc gt   8000 8003 8004 ; is it greater than the length of the string?
+05d0 jt   8000 05e3      ; return if true
+05d3 add  8003 8003 8006 ; index into buffer
+05d7 rmem 8000 8003      ; get the next character
+05da call 8005           ; process it
+05dc add  8001 8001 0001 ; counter++
+05e0 jt   8001 05c8      ; goto loop if counter != 0
+05e3 pop  8006
+05e5 pop  8005
+05e7 pop  8004
+05e9 pop  8003
+05eb pop  8000
+
+0x05ee : print a length-encoded string
+         8000 => the buffer to print
+
+0x1808 : address of first room string
+
+0x06d4 : instruction that writes to this room string
+
+0x17b4 - 0x7562 : encrypted data (goes to the end of the file)
+
+0x06bb : decoding routine?
+
+06bb push 8000
+06bd push 8001
+06bf set  8001 17b4         ; 8001 = start of encoded data?
+.loop
+06c2 rmem 8000 8001         ; read next value
+06c5 push 8001              ; save the pointer
+06c7 mult 8001 8001 8001    ; square the pointer
+06cb call 084d              ; XOR the value with the square of its address
+06cd set  8001 4154         
+06d0 call 084d              ; XOR with 0x4154
+06d2 pop  8001
+06d4 wmem 8001 8000
+06d7 add  8001 8001 0001
+06db eq   8000 7562 8001
+06df jf   8000 06c2
+06e2 pop  8001
+06e4 pop  8000
+06e6 ret 
+
+0x084d : XOR the two arguments
+         8000 -> a
+         8001 -> b
+
+int thing(int a, int b)
+{
+  return (a|b)&~(a&b)
+}
+
+084d push 8001
+084f push 8002
+0851 and  8002 8000 8001
+0855 not  8002 8002
+0858 or   8000 8000 8001
+085c and  8000 8000 8002
+0860 pop  8002
+0862 pop  8001
+0864 ret 

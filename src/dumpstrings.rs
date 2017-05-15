@@ -12,9 +12,11 @@ fn fetch(f: &mut std::io::Read) -> Option<u16> {
     }
 }
 
-fn dump_string(buf: &mut String) {
-    print!("{}", buf);
-    buf.truncate(0);
+fn dump_string(start_address: usize, buf: &mut String) {
+    if buf.len() > 0 {
+        println!("0x{:04x}: {}", start_address, buf);
+        buf.truncate(0);
+    }
 }
 
 fn main() {
@@ -22,27 +24,32 @@ fn main() {
     let stdin = std::io::stdin();
     let mut input = stdin.lock();
     let mut in_out = false;
+    let mut start_address = 0;
+    let mut addr = 0;
 
     loop {
         match fetch(&mut input) {
             Some(n) if n == OUT_OPCODE => {
                 if in_out {
-                    dump_string(&mut buf);
+                    dump_string(start_address, &mut buf);
                 }
                 in_out = true;
+                start_address = addr - 2;
             },
             Some(n) => {
                 if in_out {
                     match char::from_u32(n as u32) {
                         Some(n) => buf.push(n),
-                        None => dump_string(&mut buf)
+                        None => dump_string(start_address, &mut buf)
                     }
                     in_out = false;
                 } else {
-                    dump_string(&mut buf);
+                    dump_string(start_address, &mut buf);
                 }
             },
             None => break
         }
+
+        addr += 1;
     }
 }

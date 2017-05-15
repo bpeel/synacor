@@ -12,4 +12,7 @@ name = "diss"
 [[bin]]
 name = "dumpstrings"
 
+[[bin]]
+name = "decode"
+
 [dependencies]

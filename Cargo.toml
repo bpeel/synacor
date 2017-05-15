@@ -15,4 +15,7 @@ name = "dumpstrings"
 [[bin]]
 name = "decode"
 
+[[bin]]
+name = "evenbytes"
+
 [dependencies]

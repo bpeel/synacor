@@ -103,8 +103,7 @@ fn diss_program(filename: &str) -> Result<(), std::io::Error> {
     loop {
         match fetch(&mut reader)? {
             Some(opcode) => {
-                addr += 1;
-                addr += dump_instruction(addr, &mut reader, opcode)?;
+                addr += dump_instruction(addr, &mut reader, opcode)? + 1;
             },
             None => break
         }

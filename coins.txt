@@ -1,0 +1,7 @@
+corroded coin: 3
+red coin: 2
+blue coin: 9
+shiny coin: 5
+concave coin: 7
+
+_ + _ * _^2 + _^3 - _ = 399

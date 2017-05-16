@@ -1,5 +1,5 @@
 use std::io::Write;
-use std::io::BufReader;
+use std::io::{BufReader, BufWriter};
 use std::io::Read;
 use std::fs::File;
 use std::env;
@@ -220,7 +220,13 @@ impl Machine {
                         self.registers[register] = buf[0] as u16;
                         Ok(())
                     },
-                    _ => Err(MachineError::InputError)
+                    _ => {
+                        /* Put the pc back to the read instruction so
+                         * that it will continue from there if the
+                         * machine is reused */
+                        self.pc -= 2;
+                        Err(MachineError::InputError)
+                    }
                 }
             },
             21 => Ok(()), /* nop */
@@ -285,6 +291,46 @@ fn read_program(machine: &mut Machine,
     }
 }
 
+
+fn save_memory(memory: &[u16],
+               length: usize,
+               f: &mut BufWriter<File>) -> Result<(), std::io::Error> {
+    let mut buf = [0 as u8; 2];
+
+    for pos in 0..length {
+        buf[0] = memory[pos] as u8;
+        buf[1] = (memory[pos] >> 8) as u8;
+        f.write(&buf)?;
+    }
+
+    Ok(())
+}
+
+fn save_program(machine: &Machine) -> Result<(), std::io::Error> {
+    let f = File::create("synacor-save")?;
+    let mut writer = BufWriter::new(f);
+
+    save_memory(&machine.memory, MEMORY_SIZE, &mut writer)?;
+    save_memory(&machine.registers, N_REGISTERS, &mut writer)?;
+
+    let buf = [
+        machine.pc as u8,
+        (machine.pc >> 8) as u8
+    ];
+
+    writer.write(&buf)?;
+
+    for val in &machine.stack {
+        let buf = [
+            *val as u8,
+            (*val >> 8) as u8
+        ];
+        writer.write(&buf)?;
+    }
+
+    Ok(())
+}
+
 fn main() {
     let mut machine = Machine::new();
 
@@ -309,5 +355,12 @@ fn main() {
                 break;
             }
         }
+    }
+
+    match save_program(&machine) {
+            Ok(_) => (),
+            Err(e) => {
+                println_stderr!("Error saving: {}", e.description())
+            }
     }
 }

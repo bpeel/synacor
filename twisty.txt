@@ -1,0 +1,107 @@
+1:
+== Twisty passages ==
+You are in a maze of twisty little passages, all dimly lit by more bioluminescent moss.  There is a ladder here leading up.
+
+There are 5 exits:
+- ladder
+- north -> 2 (done)
+- south -> 3 (done)
+- east -> 4
+- west -> 9
+
+2:
+== Twisty passages ==
+You are in a twisty maze of little passages, all alike.
+
+There are 3 exits:
+- north -> 3
+- south -> 1
+- west -> 2
+
+What do you do?
+
+3:
+== Twisty passages ==
+You are in a maze of little twisty passages, all alike.
+
+There are 3 exits:
+- north -> 1
+- south -> 2
+- east -> 3
+
+4:
+== Twisty passages ==
+You are in a maze of alike little passages, all twisty.
+
+The passage to the east looks very dark; you think you hear a Grue.
+
+There are 4 exits:
+- north -> 5
+- south -> 4
+- west -> 1
+- east -> 6
+
+5:
+== Twisty passages ==
+You are in a maze of alike twisty passages, all little.
+
+There are 3 exits:
+- north -> 3
+- east -> 2
+- south -> 5
+
+6:
+== Fumbling around in the darkness ==
+Without a source of light, you have become hopelessly lost and are fumbling around in the darkness.
+
+There are 2 exits:
+- forward -> 7
+- back -> 7
+
+7:
+== Fumbling around in the darkness ==
+You can't seem to find your way.  However, you do think you hear low growling in the distance.
+
+There are 2 exits:
+- run -> 8
+- investigate -> 8
+
+8:
+== Panicked and lost ==
+The growling is getting louder.  Did I mention there are Grues down here?
+
+There are 3 exits:
+- run -> eaten by a grue
+- wait -> eaten by a grue
+- hide -> eaten by a grue
+
+9:
+== Twisty passages ==
+You are in a little maze of twisty passages, all alike.
+
+There are 3 exits:
+- north -> 9
+- south -> 10
+- east -> 1
+
+10:
+== Twisty passages ==
+You are in a twisty alike of little passages, all maze.
+
+The east passage appears very dark; you feel likely to be eaten by a Grue.
+
+There are 4 exits:
+- north -> 11
+- south -> 2
+- west -> 1
+- east -> 6
+
+11:
+== Twisty passages ==
+You are in a maze of twisty little passages, all alike.
+
+Things of interest here:
+- can
+
+There is 1 exit:
+- west -> 1

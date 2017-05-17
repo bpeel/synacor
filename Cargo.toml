@@ -24,4 +24,7 @@ name = "coins"
 [[bin]]
 name = "dumpencodedstrings"
 
+[[bin]]
+name = "find8th"
+
 [dependencies]

@@ -87,7 +87,12 @@ fn main() {
         let mut finder = Finder::new(eighth);
         print!("{:04x} ", eighth);
         match finder.thing1(4, 1) {
-            Some(n) => println!("{:04x}", n),
+            Some(n) => {
+                println!("{:04x}", n);
+                if n == 6 {
+                    break
+                }
+            },
             None => println!("circular")
         }
     }

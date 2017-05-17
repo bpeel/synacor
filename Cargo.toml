@@ -21,4 +21,7 @@ name = "evenbytes"
 [[bin]]
 name = "coins"
 
+[[bin]]
+name = "dumpencodedstrings"
+
 [dependencies]

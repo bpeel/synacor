@@ -6,21 +6,25 @@ fn minus_one(a: u16) -> u16 {
 
 struct Finder {
     eighth: u16,
-    cache: HashMap<(u16, u16), u16>
+    cache1: HashMap<(u16, u16), u16>,
+    cache2: HashMap<(u16, u16), u16>,
+    cache3: HashMap<(u16, u16), u16>
 }
 
 impl Finder {
     fn new(eighth: u16) -> Finder {
         Finder {
             eighth: eighth,
-            cache: HashMap::new()
+            cache1: HashMap::new(),
+            cache2: HashMap::new(),
+            cache3: HashMap::new()
         }
     }
 
     fn thing1(&mut self, a: u16, b: u16) -> u16 {
         let key = (a, b);
 
-        match self.cache.get(&key).cloned() {
+        match self.cache1.get(&key).cloned() {
             Some(n) => n,
             None => {
                 let v = if a != 0 {
@@ -28,24 +32,44 @@ impl Finder {
                 } else {
                     b + 1
                 };
-                self.cache.insert(key, v);
+                self.cache1.insert(key, v);
                 v
             }
         }
     }
 
     fn thing2(&mut self, a: u16, b: u16) -> u16 {
-        if b != 0 {
-            self.thing3(a, b)
-        } else {
-            let b = self.eighth;
-            self.thing1(minus_one(a), b)
+        let key = (a, b);
+
+        match self.cache2.get(&key).cloned() {
+            Some(n) => n,
+            None => {
+                let v = if b != 0 {
+                    self.thing3(a, b)
+                } else {
+                    let b = self.eighth;
+                    self.thing1(minus_one(a), b)
+                };
+                self.cache2.insert(key, v);
+                v
+            }
         }
     }
 
     fn thing3(&mut self, a: u16, b: u16) -> u16 {
-        let b = self.thing1(a, minus_one(b));
-        self.thing1(minus_one(a), b)
+        let key = (a, b);
+
+        match self.cache3.get(&key).cloned() {
+            Some(n) => n,
+            None => {
+                let v = {
+                    let b = self.thing1(a, minus_one(b));
+                    self.thing1(minus_one(a), b)
+                };
+                self.cache3.insert(key, v);
+                v
+            }
+        }
     }
 }
 

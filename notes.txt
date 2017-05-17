@@ -83,3 +83,163 @@ int thing(int a, int b)
 0860 pop  8002
 0862 pop  8001
 0864 ret 
+
+0x731 : This seems to calculate a code depending on the value of
+        the eigth register. hm
+        8000 -> contents of eighth register
+        8001 -> 0x650a ; length-prefixed buffer buf_a
+        8002 -> 0x7fff ; crop
+        8003 -> 0x7239 ; length-prefixed buffer buf_b
+
+0731 push 8003
+0733 push 8004
+0735 push 8005
+0737 push 8006
+
+// copy buf_b to 0x17ed
+0739 set  8006 0001        // initialise counter to 1
+.loop
+073c add  8004 8003 8006   // add counter to 0x7239
+0740 rmem 8004 8004        // get [0x7239 + counter]
+0743 add  8005 17ed 8006   // get counter + 0x17ed
+0747 wmem 8005 8004        // [0x17ed + counter] = read value
+074a add  8006 8006 0001   // increment counter
+074e rmem 8005 17ed        // get length
+0751 gt   8004 8006 8005   // compare with counter
+0755 jf   8004 073c        // jf .loop
+
+0758 set  8003 0000        // is_longer_than_crop = 0
+075b set  8004 0000        // counter_b = 0
+.loop2
+075e rmem 8005 17ed        // 8005 = string length
+0761 mod  8005 8004 8005   // 8005 = counter_b % string length
+0765 add  8005 8005 17ed   // 8005 = address of character
+0769 add  8005 8005 0001   // …
+076d rmem 8006 8005        // 8006 = string[counter_b%string_length]
+0770 mult 8006 8006 1481   // 8006 *= 0x1481
+0774 add  8006 8006 3039   // 8006 *= 0x3039
+0778 wmem 8005 8006        // write the value back into the string
+077b push 8000             // 8006 ^= [0x8000] (8th register)
+077d push 8001             // …
+077f set  8001 8006        // …
+0782 call 084d             // …
+0784 set  8006 8000        // …
+0787 pop  8001             // …
+0789 pop  8000             // …
+078b rmem 8005 8001        // 8005 = length(buf_a)
+078e mod  8006 8006 8005   // 8006 = [0x8006] % length(buf_a) + 1
+0792 add  8006 8006 0001   // …
+0796 gt   8005 8006 8002   // if [8006] > crop { is_longer_than_crop = 1 }
+079a jt   8005 07a0        // …
+079d set  8003 0001        // …
+07a0 add  8006 8006 8001   // 8006 = buf_a[[0x8006]]
+07a4 rmem 8006 8006        // …
+07a7 add  8004 8004 0001   // counter_b++
+07ab add  8005 8004 17f1   // 17f1[counter_b] = value read from buf_a
+07af wmem 8005 8006        // …
+07b2 rmem 8005 17f1        // get 17f1 (length of buffer?)
+07b5 eq   8005 8004 8005   // check if we’ve filled the buffer
+07b9 jf   8005 075e        // if not goto loop2
+07bc jf   8003 0758
+07bf push 8000
+07c1 set  8000 17f1
+07c4 call 05ee             // print length-encoded string
+07c6 pop  8000
+07c8 pop  8006
+07ca pop  8005
+07cc pop  8004
+07ce pop  8003
+07d0 ret
+
+0x156b : Start of routine to check 8th register?
+
+156b set  8000 0004
+156e set  8001 0001
+1571 call 178b
+1573 eq   8001 8000 0006
+1577 jf   8001 15cb ; goto failed verification
+157a push 8000
+157c push 8001
+157e push 8002
+1580 set  8000 7156 ; You wake up on a sandy beach with a slight headache…
+                    ; this seems like the goal? … once it’s finished verifying
+1583 set  8001 05fb
+1586 add  8002 659f 164a
+158a call 05b2
+158c pop  8002
+158e pop  8001
+1590 pop  8000
+1592 set  8000 8007
+1595 set  8001 650a
+1598 set  8002 7fff
+159b push 8003
+159d set  8003 7239
+15a0 call 0731      ; print a code calculated from the eigth register
+15a2 pop  8003
+15a4 push 8000
+15a6 push 8001
+15a8 push 8002
+15aa set  8000 723d
+15ad set  8001 05fb
+15b0 add  8002 1e8e 085e
+15b4 call 05b2
+15b6 pop  8002
+15b8 pop  8001
+15ba pop  8000
+15bc wmem 0aac 09c2
+15bf wmem 0aad 0000
+15c2 add  8001 0a94 0002
+15c6 wmem 8001 7fff
+15c9 jmp  1652
+15cb push 8000
+15cd push 8001
+15cf push 8002
+15d1 set  8000 72d8       ; Miscalibration detected!  Aborting teleportation
+15d4 set  8001 05fb
+15d7 add  8002 0b8f 02ee
+15db call 05b2
+15dd pop  8002
+15df pop  8001
+15e1 pop  8000
+15e3 jmp  1652
+
+// looks like this is the check routine
+// needs to return 6
+// gets args 4,1
+
+fn thing1(a: u16, b: u16) {
+  if (a != 0) {
+    return thing2(a, b);
+  }
+  return b + 1;
+}
+
+178b jt   8000 1793
+178e add  8000 8001 0001
+1792 ret
+
+fn thing2(a: u16, b: u16) {
+  if (b != 0) {
+    return thing3(a, b);
+  }
+  return thing1(a - 1, something /* 0x8007 */);
+}
+
+1793 jt   8001 17a0
+1796 add  8000 8000 7fff
+179a set  8001 8007
+179d call 178b
+179f ret
+
+fn thing3(a: u16, b: u16) {
+  return thing1(a - 1, thing1(a, b - 1));
+}
+
+17a0 push 8000
+17a2 add  8001 8001 7fff
+17a6 call 178b
+17a8 set  8001 8000
+17ab pop  8000
+17ad add  8000 8000 7fff
+17b1 call 178b
+17b3 ret

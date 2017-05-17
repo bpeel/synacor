@@ -5,6 +5,7 @@ use std::fs::File;
 use std::env;
 use std::error::Error;
 use std::char;
+use std::str::FromStr;
 
 const MEMORY_SIZE: usize = 0x7fff;
 const N_REGISTERS: usize = 8;
@@ -331,18 +332,47 @@ fn save_program(machine: &Machine) -> Result<(), std::io::Error> {
     Ok(())
 }
 
+fn usage(arg0: &str) -> ! {
+    println_stderr!("usage: {} <save-state> [eighth register value]", arg0);
+    std::process::exit(1);
+}
+
 fn main() {
     let mut machine = Machine::new();
 
-    for arg in env::args().skip(1) {
-        match read_program(&mut machine, &arg) {
-            Err(e) => {
-                println_stderr!("{}", e.description());
-                std::process::exit(1);
-            },
-            Ok(_) => ()
-        }
+    let mut args = env::args();
+
+    let arg0 = args.next().unwrap();
+
+    let save_state_filename = match args.next() {
+        Some(n) => n,
+        None => usage(&arg0)
+    };
+
+    let reg8 = args.next();
+
+    match read_program(&mut machine, &save_state_filename) {
+        Err(e) => {
+            println_stderr!("{}", e.description());
+            std::process::exit(1);
+        },
+        Ok(_) => ()
     }
+
+    match reg8 {
+        Some(n) => {
+            let res = if n.starts_with("0x") {
+                u16::from_str_radix(&n[2..], 16)
+            } else {
+                u16::from_str(&n)
+            };
+            match res {
+                Err(_) => usage(&arg0),
+                Ok(n) => machine.registers[7] = n
+            }
+        },
+        None => ()
+    };
 
     loop {
         match machine.step() {

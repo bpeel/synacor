@@ -27,4 +27,7 @@ name = "dumpencodedstrings"
 [[bin]]
 name = "find8th"
 
+[[bin]]
+name = "vault"
+
 [dependencies]

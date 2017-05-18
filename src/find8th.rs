@@ -9,9 +9,9 @@ fn minus_one(a: u16) -> u16 {
 
 struct Finder {
     eighth: u16,
-    cache1: HashMap<(u16, u16), Option<u16>>,
-    cache2: HashMap<(u16, u16), Option<u16>>,
-    cache3: HashMap<(u16, u16), Option<u16>>
+    cache1: HashMap<(u16, u16), u16>,
+    cache2: HashMap<(u16, u16), u16>,
+    cache3: HashMap<(u16, u16), u16>
 }
 
 impl Finder {
@@ -24,34 +24,29 @@ impl Finder {
         }
     }
 
-    fn thing1(&mut self, a: u16, b: u16) -> Option<u16> {
+    fn thing1(&mut self, a: u16, b: u16) -> u16 {
         let key = (a, b);
 
         match self.cache1.get(&key).cloned() {
             Some(n) => n,
             None => {
-                self.cache1.insert(key, None);
                 let v = if a != 0 {
-                    match self.thing2(a, b) {
-                        Some(n) => n,
-                        None => return None
-                    }
+                    self.thing2(a, b)
                 } else {
                     b + 1
                 };
-                self.cache1.insert(key, Some(v));
-                Some(v)
+                self.cache1.insert(key, v);
+                v
             }
         }
     }
 
-    fn thing2(&mut self, a: u16, b: u16) -> Option<u16> {
+    fn thing2(&mut self, a: u16, b: u16) -> u16 {
         let key = (a, b);
 
         match self.cache2.get(&key).cloned() {
             Some(n) => n,
             None => {
-                self.cache2.insert(key, None);
                 let v = if b != 0 {
                     self.thing3(a, b)
                 } else {
@@ -64,18 +59,14 @@ impl Finder {
         }
     }
 
-    fn thing3(&mut self, a: u16, b: u16) -> Option<u16> {
+    fn thing3(&mut self, a: u16, b: u16) -> u16 {
         let key = (a, b);
 
         match self.cache3.get(&key).cloned() {
             Some(n) => n,
             None => {
-                self.cache3.insert(key, None);
                 let v = {
-                    let b = match self.thing1(a, minus_one(b)) {
-                        Some(n) => n,
-                        None => return None
-                    };
+                    let b = self.thing1(a, minus_one(b));
                     self.thing1(minus_one(a), b)
                 };
                 self.cache3.insert(key, v);
@@ -91,14 +82,9 @@ fn find_solution(offset: u16) {
     while eighth <= 0x7fff {
         let mut finder = Finder::new(eighth);
 
-        match finder.thing1(4, 1) {
-            Some(n) => {
-                if n == 6 {
-                    println!("{:04x} {:04x}", eighth, n);
-                    break
-                }
-            },
-            None => ()
+        let n = finder.thing1(4, 1);
+        if n == 6 {
+            println!("{:04x} {:04x}", eighth, n);
         }
 
         eighth += N_THREADS;

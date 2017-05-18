@@ -1,0 +1,7 @@
+*  8  -  1
+4  *  11 *
++  4  -  18
+A  -  9  *
+
+Antichamber is 22
+Target is 30

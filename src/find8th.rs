@@ -18,13 +18,12 @@ impl Finder {
 
     fn compute_uncached(&mut self, a: u16, b: u16) -> u16 {
         if a != 0 {
-            if b != 0 {
-                let b = self.compute(a, b - 1);
-                self.compute(a - 1, b)
+            let b = if b != 0 {
+                self.compute(a, b - 1)
             } else {
-                let b = self.eighth;
-                self.compute(a - 1, b)
-            }
+                self.eighth
+            };
+            self.compute(a - 1, b)
         } else {
             (b + 1) & 0x7fff
         }

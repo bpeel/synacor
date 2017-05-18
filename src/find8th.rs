@@ -3,10 +3,6 @@ use std::thread;
 
 const N_THREADS: u16 = 4;
 
-fn minus_one(a: u16) -> u16 {
-    ((a as u32 + 0x7fff) & 0x7fff) as u16
-}
-
 struct Finder {
     eighth: u16,
     cache: HashMap<(u16, u16), u16>,
@@ -23,11 +19,11 @@ impl Finder {
     fn compute_uncached(&mut self, a: u16, b: u16) -> u16 {
         if a != 0 {
             if b != 0 {
-                let b = self.compute(a, minus_one(b));
-                self.compute(minus_one(a), b)
+                let b = self.compute(a, b - 1);
+                self.compute(a - 1, b)
             } else {
                 let b = self.eighth;
-                self.compute(minus_one(a), b)
+                self.compute(a - 1, b)
             }
         } else {
             b + 1

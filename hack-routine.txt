@@ -1,6 +1,8 @@
 0c20: // call to print the room description
-call 7800  0017 7800
+call 7800  0011 7800
 
 7800:
-out 0021   0013 0021
-jmp 05ee   0006 05ee
+call 07d1  0011 07d1 // print the number in 8000
+out 003a   0013 003a // :
+out 0020   0013 0020 // space
+jmp 05ee   0006 05ee // continue old routine

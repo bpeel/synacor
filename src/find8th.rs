@@ -26,7 +26,7 @@ impl Finder {
                 self.compute(a - 1, b)
             }
         } else {
-            b + 1
+            (b + 1) & 0x7fff
         }
     }
 

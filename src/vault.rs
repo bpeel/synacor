@@ -6,6 +6,17 @@ enum Room {
     Number(i32)
 }
 
+impl Room {
+    fn name(self) -> char {
+        match self {
+            Room::Add => '+',
+            Room::Subtract => '-',
+            Room::Multiply => '*',
+            _ => panic!()
+        }
+    }
+}
+
 const WIDTH: usize = 4;
 const HEIGHT: usize = 4;
 
@@ -33,6 +44,9 @@ fn apply_op(a: i32, op: Room, b: i32) -> i32 {
 }
 
 fn print_solution(queue: &Vec<State>)  {
+    let mut weight = 22;
+    let mut last_op = Room::Add;
+
     for state in queue {
         let direction_name = match state.direction {
             0 => "north",
@@ -43,7 +57,17 @@ fn print_solution(queue: &Vec<State>)  {
             n => panic!("unknown direction {}", n)
         };
 
-        println!("{}", direction_name);
+        print!("{}", direction_name);
+
+        match ROOMS[state.x as usize + state.y as usize * WIDTH] {
+            Room::Number(n) => {
+                weight = apply_op(weight, last_op, n);
+                print!(" // {} {} = {}", last_op.name(), n, weight);
+            },
+            ref op => last_op = *op
+        }
+
+        println!();
     }
 }
 

@@ -26,21 +26,16 @@ fn decrypt(input: &mut std::io::Stdin,
            output: &mut std::io::Stdout) -> Result<(), std::io::Error> {
     let mut addr: u16 = 0;
 
-    loop {
-        match fetch(input)? {
-            Some(val) => {
-                let square_address = ((addr as u32 * addr as u32) &
-                                      0x7fff) as u16;
-                let decrypted = val ^ square_address ^ 0x4154;
-                let buf: [u8; 2] = [
-                    decrypted as u8,
-                    (decrypted >> 8) as u8
-                ];
-                output.write(&buf)?;
-                addr += 1;
-            },
-            None => break
-        }
+    while let Some(val) = fetch(input)? {
+        let square_address = ((addr as u32 * addr as u32) &
+                              0x7fff) as u16;
+        let decrypted = val ^ square_address ^ 0x4154;
+        let buf: [u8; 2] = [
+            decrypted as u8,
+            (decrypted >> 8) as u8
+        ];
+        output.write(&buf)?;
+        addr += 1;
     }
 
     Ok(())

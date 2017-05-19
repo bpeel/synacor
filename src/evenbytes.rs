@@ -23,14 +23,9 @@ fn fetch(f: &mut std::io::Stdin) -> Result<Option<u16>, std::io::Error> {
 
 fn get_evens(input: &mut std::io::Stdin,
             output: &mut std::io::Stdout) -> Result<(), std::io::Error> {
-    loop {
-        match fetch(input)? {
-            Some(val) => {
-                let buf = [ val as u8 ];
-                output.write(&buf)?;
-            },
-            None => break
-        }
+    while let Some(val) = fetch(input)? {
+        let buf = [ val as u8 ];
+        output.write(&buf)?;
     }
 
     Ok(())

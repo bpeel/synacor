@@ -95,11 +95,13 @@ fn solve(max_depth: usize) -> bool {
     while queue.len() > 0 {
         let state = *queue.last().unwrap();
 
-        if state.x == 3 && state.y == 0 && state.direction == -1 {
+        if state.x == 3 && state.y == 0 {
             if try_solution(&queue) {
                 print_solution(&queue);
                 return true;
             }
+            queue.pop();
+            continue;
         }
 
         queue.pop();

@@ -16,6 +16,7 @@ const ROOMS: [Room; WIDTH * HEIGHT] = [
     Room::Number(0), Room::Subtract, Room::Number(9), Room::Multiply,
 ];
 
+#[derive(Copy, Clone)]
 struct State {
     x: i8,
     y: i8,
@@ -38,6 +39,7 @@ fn print_solution(queue: &Vec<State>)  {
             1 => "south",
             2 => "west",
             3 => "east",
+            -1 => "(end)",
             n => panic!("unknown direction {}", n)
         };
 
@@ -67,7 +69,7 @@ fn solve(max_depth: usize) -> bool {
     queue.push(State { x: 0, y: 3, direction: -1 });
 
     while queue.len() > 0 {
-        let state = queue.pop().unwrap();
+        let state = *queue.last().unwrap();
 
         if state.x == 3 && state.y == 0 && state.direction == -1 {
             if try_solution(&queue) {
@@ -75,6 +77,8 @@ fn solve(max_depth: usize) -> bool {
                 return true;
             }
         }
+
+        queue.pop();
 
         if queue.len() + 2 <= max_depth {
             for next_direction in state.direction + 1 .. 4 {

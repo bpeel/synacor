@@ -243,3 +243,19 @@ fn thing3(a: u16, b: u16) {
 17ad add  8000 8000 7fff
 17b1 call 178b
 17b3 ret
+
+; part of the code that handles checking the orb
+
+11d5 set  8000 671e
+11d8 call 05ee
+11da call 1234
+11dc jmp  1200
+11de set  8000 6748 
+11e1 call 05ee     
+11e3 rmem 8000 0f72      ; is this a variable with the hourglass count?
+                         ; or maybe a bit mask? starts off as 0
+11e6 add  8000 8000 0001 ; check if it equals -1
+11ea jt   8000 11f4      ; carry on if not
+11ed set  8000 6774 ; print string about the hourglass running out
+11f0 call 05ee      ; …
+11f2 jmp  11d5      

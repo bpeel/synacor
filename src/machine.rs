@@ -1,6 +1,5 @@
 use std::io;
 use std::io::{Read, Write};
-use std::char;
 
 pub const MEMORY_SIZE: usize = 0x7fff;
 pub const N_REGISTERS: usize = 8;
@@ -27,20 +26,27 @@ impl MachineError {
     }
 }
 
-pub struct Machine {
+pub trait CharIo {
+    fn input(&self) -> io::Result<u16>;
+    fn output(&self, value: u16) -> io::Result<()>;
+}
+
+pub struct Machine<'a> {
     memory: [u16; MEMORY_SIZE],
     registers: [u16; N_REGISTERS],
     stack: Vec<u16>,
     pc: u16,
+    char_io: &'a CharIo
 }
 
-impl Machine {
-    pub fn new() -> Machine {
+impl<'a> Machine<'a> {
+    pub fn new(char_io: &'a CharIo) -> Machine {
         Machine {
             memory: [0; MEMORY_SIZE],
             registers: [0; N_REGISTERS],
             stack: Vec::<u16>::new(),
             pc: 0,
+            char_io: char_io
         }
     }
 
@@ -195,21 +201,21 @@ impl Machine {
                 }
             },
             19 => {
-                match char::from_u32(self.fetch_argument()? as u32) {
-                    Some(c) => print!("{}", c),
-                    None => ()
-                };
-                Ok(())
+                let value = self.fetch_argument()?;
+                if let Err(_) = self.char_io.output(value) {
+                    Err(MachineError::InputError)
+                } else {
+                    Ok(())
+                }
             },
             20 => {
                 let register = self.fetch_register()?;
-                let mut buf = [0 as u8; 1];
-                match io::stdin().read(&mut buf) {
-                    Ok(n) if n > 0 => {
-                        self.registers[register] = buf[0] as u16;
+                match self.char_io.input() {
+                    Ok(value) => {
+                        self.registers[register] = value;
                         Ok(())
                     },
-                    _ => {
+                    _=> {
                         /* Put the pc back to the read instruction so
                          * that it will continue from there if the
                          * machine is reused */

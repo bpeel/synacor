@@ -27,11 +27,8 @@ fn main() {
     let mut stdin = std::io::stdin();
     let mut stdout = std::io::stdout();
 
-    match get_evens(&mut stdin, &mut stdout) {
-        Err(e) => {
-            eprintln!("{}", e);
-            std::process::exit(1);
-        },
-        Ok(_) => ()
+    if let Err(e) = get_evens(&mut stdin, &mut stdout) {
+        eprintln!("{}", e);
+        std::process::exit(1);
     }
 }

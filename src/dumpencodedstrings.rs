@@ -94,12 +94,9 @@ fn main() {
         None => usage(&arg0)
     };
 
-    match read_program(&mut memory, &save_state_filename) {
-        Err(e) => {
-            eprintln!("{}", e);
-            std::process::exit(1);
-        },
-        Ok(_) => ()
+    if let Err(e) = read_program(&mut memory, &save_state_filename) {
+        eprintln!("{}", e);
+        std::process::exit(1);
     }
 
     dump_strings(&memory);

@@ -141,11 +141,8 @@ fn main() {
         None => 0
     };
 
-    match diss_program(&filename, start_address) {
-        Err(e) => {
-            eprintln!("{}", e);
-            std::process::exit(1);
-        },
-        Ok(_) => ()
+    if let Err(e) = diss_program(&filename, start_address) {
+        eprintln!("{}", e);
+        std::process::exit(1);
     }
 }

@@ -47,10 +47,9 @@ impl machine::CharIo for StdIo {
     }
 
     fn output(&self, value: u16) -> io::Result<()> {
-        match char::from_u32(value as u32) {
-            Some(c) => print!("{}", c),
-            None => ()
-        };
+        if let Some(c) = char::from_u32(value as u32) {
+            print!("{}", c);
+        }
         Ok(())
     }
 }
@@ -70,46 +69,34 @@ fn main() {
 
     let reg8 = args.next();
 
-    match load_state(&mut machine, &save_state_filename) {
-        Err(e) => {
-            eprintln!("{}", e);
-            std::process::exit(1);
-        },
-        Ok(_) => ()
+    if let Err(e) = load_state(&mut machine, &save_state_filename) {
+        eprintln!("{}", e);
+        std::process::exit(1);
     }
 
-    match reg8 {
-        Some(n) => {
-            let res = if n.starts_with("0x") {
-                u16::from_str_radix(&n[2..], 16)
-            } else {
-                u16::from_str(&n)
-            };
-            match res {
-                Err(_) => usage(&arg0),
-                Ok(n) => machine.set_register(7, n)
-            }
-        },
-        None => ()
-    };
+    if let Some(n) = reg8 {
+        let res = if n.starts_with("0x") {
+            u16::from_str_radix(&n[2..], 16)
+        } else {
+            u16::from_str(&n)
+        };
+        match res {
+            Err(_) => usage(&arg0),
+            Ok(n) => machine.set_register(7, n)
+        }
+    }
 
     loop {
-        match machine.step() {
-            Ok(_) => (),
-            Err(msg) => {
-                match msg {
-                    machine::MachineError::Halted => (),
-                    _ => eprintln!("{}", msg.description())
-                }
-                break;
+        if let Err(msg) = machine.step() {
+            match msg {
+                machine::MachineError::Halted => (),
+                _ => eprintln!("{}", msg.description())
             }
+            break;
         }
     }
 
-    match save_state(&machine) {
-        Ok(_) => (),
-        Err(e) => {
-            eprintln!("Error saving: {}", e)
-        }
+    if let Err(e) = save_state(&machine) {
+        eprintln!("Error saving: {}", e)
     }
 }

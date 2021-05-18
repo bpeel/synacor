@@ -4,7 +4,6 @@ use std::io::Read;
 use std::fs::File;
 use std::env;
 use std::char;
-use std::error::Error;
 
 const MEMORY_SIZE: usize = 0x7fff;
 
@@ -105,7 +104,7 @@ fn main() {
 
     match read_program(&mut memory, &save_state_filename) {
         Err(e) => {
-            println_stderr!("{}", e.description());
+            println_stderr!("{}", e);
             std::process::exit(1);
         },
         Ok(_) => ()

@@ -3,7 +3,6 @@ use std::io::BufReader;
 use std::io::Read;
 use std::fs::File;
 use std::env;
-use std::error::Error;
 use std::char;
 use std::str::FromStr;
 
@@ -152,7 +151,7 @@ fn main() {
 
     match diss_program(&filename, start_address) {
         Err(e) => {
-            println_stderr!("{}", e.description());
+            println_stderr!("{}", e);
             std::process::exit(1);
         },
         Ok(_) => ()

@@ -5,29 +5,38 @@ authors = ["Neil Roberts <bpeeluk@yahoo.co.uk>"]
 
 [[bin]]
 name = "synacor"
+path = "src/synacor.rs"
 
 [[bin]]
 name = "diss"
+path = "src/diss.rs"
 
 [[bin]]
 name = "dumpstrings"
+path = "src/dumpstrings.rs"
 
 [[bin]]
 name = "decode"
+path = "src/decode.rs"
 
 [[bin]]
 name = "evenbytes"
+path = "src/evenbytes.rs"
 
 [[bin]]
 name = "coins"
+path = "src/coins.rs"
 
 [[bin]]
 name = "dumpencodedstrings"
+path = "src/dumpencodedstrings.rs"
 
 [[bin]]
 name = "find8th"
+path = "src/find8th.rs"
 
 [[bin]]
 name = "vault"
+path = "src/vault.rs"
 
 [dependencies]

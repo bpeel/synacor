@@ -36,11 +36,11 @@ pub struct Machine<'a> {
     registers: [u16; N_REGISTERS],
     stack: Vec<u16>,
     pc: u16,
-    char_io: &'a CharIo
+    char_io: &'a dyn CharIo
 }
 
 impl<'a> Machine<'a> {
-    pub fn new(char_io: &'a CharIo) -> Machine {
+    pub fn new(char_io: &'a dyn CharIo) -> Machine {
         Machine {
             memory: [0; MEMORY_SIZE],
             registers: [0; N_REGISTERS],
@@ -233,7 +233,7 @@ impl<'a> Machine<'a> {
 
     fn load_memory(memory: &mut[u16],
                    length: usize,
-                   f: &mut Read) -> io::Result<bool> {
+                   f: &mut dyn Read) -> io::Result<bool> {
         let mut buf = [0 as u8; 2];
         let mut pos: usize = 0;
 
@@ -252,7 +252,7 @@ impl<'a> Machine<'a> {
     }
 
     pub fn load_state(&mut self,
-                      reader: &mut Read) -> io::Result<()> {
+                      reader: &mut dyn Read) -> io::Result<()> {
         if !Machine::load_memory(&mut self.memory, MEMORY_SIZE, reader)? {
             return Ok(())
         }
@@ -284,7 +284,7 @@ impl<'a> Machine<'a> {
 
     fn save_memory(memory: &[u16],
                    length: usize,
-                   f: &mut Write) -> io::Result<()> {
+                   f: &mut dyn Write) -> io::Result<()> {
         let mut buf = [0 as u8; 2];
 
         for pos in 0..length {
@@ -297,7 +297,7 @@ impl<'a> Machine<'a> {
     }
 
     pub fn save_state(&self,
-                      writer: &mut Write) -> io::Result<()> {
+                      writer: &mut dyn Write) -> io::Result<()> {
         Machine::save_memory(&self.memory, MEMORY_SIZE, writer)?;
         Machine::save_memory(&self.registers, N_REGISTERS, writer)?;
 

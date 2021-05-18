@@ -1,6 +1,5 @@
 use std::io::Write;
 use std::io::Read;
-use std::error::Error;
 
 macro_rules! println_stderr(
     ($($arg:tt)*) => { {
@@ -37,7 +36,7 @@ fn main() {
 
     match get_evens(&mut stdin, &mut stdout) {
         Err(e) => {
-            println_stderr!("{}", e.description());
+            println_stderr!("{}", e);
             std::process::exit(1);
         },
         Ok(_) => ()

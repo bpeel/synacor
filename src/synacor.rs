@@ -5,7 +5,6 @@ use std::io::{BufReader, BufWriter};
 use std::io::{Read, Write};
 use std::fs::File;
 use std::env;
-use std::error::Error;
 use std::str::FromStr;
 use std::char;
 
@@ -80,7 +79,7 @@ fn main() {
 
     match load_state(&mut machine, &save_state_filename) {
         Err(e) => {
-            println_stderr!("{}", e.description());
+            println_stderr!("{}", e);
             std::process::exit(1);
         },
         Ok(_) => ()
@@ -117,7 +116,7 @@ fn main() {
     match save_state(&machine) {
         Ok(_) => (),
         Err(e) => {
-            println_stderr!("Error saving: {}", e.description())
+            println_stderr!("Error saving: {}", e)
         }
     }
 }

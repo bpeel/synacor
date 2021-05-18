@@ -2,7 +2,7 @@ use std::char;
 
 const OUT_OPCODE: u16 = 19;
 
-fn fetch(f: &mut std::io::Read) -> Option<u16> {
+fn fetch(f: &mut dyn std::io::Read) -> Option<u16> {
     let mut buf = [0 as u8; 2];
 
     match f.read(&mut buf) {

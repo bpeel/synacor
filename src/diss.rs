@@ -1,17 +1,9 @@
-use std::io::Write;
 use std::io::BufReader;
 use std::io::Read;
 use std::fs::File;
 use std::env;
 use std::char;
 use std::str::FromStr;
-
-macro_rules! println_stderr(
-    ($($arg:tt)*) => { {
-        let r = writeln!(&mut ::std::io::stderr(), $($arg)*);
-        r.expect("failed printing to stderr");
-    } }
-);
 
 struct Opcode {
     name: &'static str,
@@ -120,7 +112,7 @@ fn diss_program(filename: &str, start_address: usize) -> Result<(), std::io::Err
 }
 
 fn usage(arg0: &str) -> ! {
-    println_stderr!("usage: {} <program> [start_address]", arg0);
+    eprintln!("usage: {} <program> [start_address]", arg0);
     std::process::exit(1);
 }
 
@@ -151,7 +143,7 @@ fn main() {
 
     match diss_program(&filename, start_address) {
         Err(e) => {
-            println_stderr!("{}", e);
+            eprintln!("{}", e);
             std::process::exit(1);
         },
         Ok(_) => ()

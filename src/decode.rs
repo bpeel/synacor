@@ -1,14 +1,6 @@
 use std::io::Write;
 use std::io::Read;
 
-macro_rules! println_stderr(
-    ($($arg:tt)*) => { {
-        let r = writeln!(&mut ::std::io::stderr(), $($arg)*);
-        r.expect("failed printing to stderr");
-    } }
-);
-
-
 fn fetch(f: &mut std::io::Stdin) -> Result<Option<u16>, std::io::Error> {
     let mut buf = [0 as u8; 2];
 
@@ -46,7 +38,7 @@ fn main() {
 
     match decrypt(&mut stdin, &mut stdout) {
         Err(e) => {
-            println_stderr!("{}", e);
+            eprintln!("{}", e);
             std::process::exit(1);
         },
         Ok(_) => ()

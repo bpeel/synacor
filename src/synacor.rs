@@ -2,21 +2,14 @@ mod machine;
 
 use std::io;
 use std::io::{BufReader, BufWriter};
-use std::io::{Read, Write};
+use std::io::Read;
 use std::fs::File;
 use std::env;
 use std::str::FromStr;
 use std::char;
 
-macro_rules! println_stderr(
-    ($($arg:tt)*) => { {
-        let r = writeln!(&mut ::std::io::stderr(), $($arg)*);
-        r.expect("failed printing to stderr");
-    } }
-);
-
 fn usage(arg0: &str) -> ! {
-    println_stderr!("usage: {} <save-state> [eighth register value]", arg0);
+    eprintln!("usage: {} <save-state> [eighth register value]", arg0);
     std::process::exit(1);
 }
 
@@ -79,7 +72,7 @@ fn main() {
 
     match load_state(&mut machine, &save_state_filename) {
         Err(e) => {
-            println_stderr!("{}", e);
+            eprintln!("{}", e);
             std::process::exit(1);
         },
         Ok(_) => ()
@@ -106,7 +99,7 @@ fn main() {
             Err(msg) => {
                 match msg {
                     machine::MachineError::Halted => (),
-                    _ => println_stderr!("{}", msg.description())
+                    _ => eprintln!("{}", msg.description())
                 }
                 break;
             }
@@ -116,7 +109,7 @@ fn main() {
     match save_state(&machine) {
         Ok(_) => (),
         Err(e) => {
-            println_stderr!("Error saving: {}", e)
+            eprintln!("Error saving: {}", e)
         }
     }
 }

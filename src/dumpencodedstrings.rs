@@ -1,4 +1,3 @@
-use std::io::Write;
 use std::io::BufReader;
 use std::io::Read;
 use std::fs::File;
@@ -6,13 +5,6 @@ use std::env;
 use std::char;
 
 const MEMORY_SIZE: usize = 0x7fff;
-
-macro_rules! println_stderr(
-    ($($arg:tt)*) => { {
-        let r = writeln!(&mut ::std::io::stderr(), $($arg)*);
-        r.expect("failed printing to stderr");
-    } }
-);
 
 fn read_memory(memory: &mut[u16],
                length: usize,
@@ -35,7 +27,7 @@ fn read_memory(memory: &mut[u16],
 }
 
 fn usage(arg0: &str) -> ! {
-    println_stderr!("usage: {} <save-state>", arg0);
+    eprintln!("usage: {} <save-state>", arg0);
     std::process::exit(1);
 }
 
@@ -104,7 +96,7 @@ fn main() {
 
     match read_program(&mut memory, &save_state_filename) {
         Err(e) => {
-            println_stderr!("{}", e);
+            eprintln!("{}", e);
             std::process::exit(1);
         },
         Ok(_) => ()
